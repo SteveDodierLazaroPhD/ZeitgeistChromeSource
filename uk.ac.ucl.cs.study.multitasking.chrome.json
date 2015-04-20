@@ -1,0 +1,9 @@
+{
+  "name": "uk.ac.ucl.cs.study.multitasking.chrome",
+  "description": "UCL Multitasking Study Chrome Host App",
+  "path": "HOST_PATH",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://lbiefpjhogkfihinalgikefnaohehboh/"
+  ]
+}
