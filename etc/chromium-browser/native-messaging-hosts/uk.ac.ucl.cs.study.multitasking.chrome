@@ -1,0 +1,199 @@
+#!/usr/bin/env python
+# Original Chrome Messaging API example:
+# Copyright (c) 2012 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+# Modifications:
+# Copyright 2015 Steve Dodier-Lazaro <sidnioulz@gmail.com>
+# Modifications are under public domain
+
+import struct
+import sys
+import syslog
+import json
+import time
+from zeitgeist.client import ZeitgeistClient
+from zeitgeist.datamodel import *
+
+zg = ZeitgeistClient()
+ManifestationWebEvents = "activity://web-browser/chromium/WebEvent"
+InterpretationWebAccess = "activity://web-browser/chromium/WebAccessEvent"
+InterpretationWebLeave = "activity://web-browser/chromium/WebLeaveEvent"
+InterpretationWebDownload = "activity://web-browser/chromium/WebDownloadEvent"
+InterpretationWebActiveTabs = "activity://web-browser/chromium/OpenWindowsInterval"
+
+MIN_DURATION_SEC = 5.0
+
+def on_status_changed_callback(enabled):
+    """ This method will be called whenever someone enables or disables
+        the data-source. """
+    if enabled:
+        print('Data-source enabled and ready to send events!')
+    else:
+        print('Data-source disabled; sent events will be ignored.')
+ 
+def register():
+    """ This method registers the Zeitgeist data-source. """
+    unique_id = 'uk.ac.ucl.cs.study.multitasking.chrome'
+    name = 'UCL Study Chromium Datasource'
+    description = 'Logs your access to websites, and how you spend time across browser tabs'
+
+    zg.register_data_source(unique_id, name, description, [], on_status_changed_callback)
+
+def logAccess(documentInfo):
+    """ This method logs a website access event. """
+    
+    subjects = []
+    subjects.append(Subject.new_for_values(
+        uri=documentInfo['url'].replace('&', '%26'),
+        origin=documentInfo['origin'],
+        mimetype=documentInfo['mimeType'],
+        text=documentInfo['title']))
+    
+    activity = "activity://null///pid://%d///winid://%d///index://%d///tabid://%d///" % (documentInfo['pid'], documentInfo['windowId'], documentInfo['index'], documentInfo['id'])
+    subjects.append(Subject.new_for_values(
+        uri=activity,
+        interpretation=Interpretation.SOFTWARE,
+        manifestation=Manifestation.WORLD_ACTIVITY,
+        mimetype='application/octet-stream',
+        text='ucl-study-metadata'))
+    
+    event = Event.new_for_values(
+        timestamp=time.time()*1000,
+        manifestation=Manifestation.USER_ACTIVITY,
+        interpretation=InterpretationWebAccess,
+        actor='application://chromium-browser.desktop',
+        subjects=subjects)
+    
+    zg.insert_event(event)
+
+def logLeave(tabid, documentInfo):
+    """ This method logs a website leave event. """
+        
+    subjects = []
+    subjects.append(Subject.new_for_values(
+        uri=documentInfo['url'].replace('&', '%26'),
+        origin=documentInfo['origin'],
+        mimetype=documentInfo['mimeType'],
+        text=documentInfo['title']))
+    
+    activity = "activity://null///pid://%d///winid://%d///index://%d///tabid://%d///" % (documentInfo['pid'], documentInfo['windowId'], documentInfo['index'], documentInfo['id'])
+    subjects.append(Subject.new_for_values(
+        uri=activity,
+        interpretation=Interpretation.SOFTWARE,
+        manifestation=Manifestation.WORLD_ACTIVITY,
+        mimetype='application/octet-stream',
+        text='ucl-study-metadata'))
+    
+    event = Event.new_for_values(
+        timestamp=time.time()*1000,
+        manifestation=Manifestation.USER_ACTIVITY,
+        interpretation=InterpretationWebLeave,
+        actor='application://chromium-browser.desktop',
+        subjects=subjects)
+    
+    zg.insert_event(event)
+
+def logActiveTabs(activeEventInfo):
+    """ This method logs an active browser tabs event. """
+    
+    subjects = []
+    for key in activeEventInfo:
+        if activeEventInfo[key] > MIN_DURATION_SEC:
+            subjects.append(Subject.new_for_values(
+                uri=key.replace('&', '%26'),
+                mimetype='text/url',
+                text=str(activeEventInfo[key])))
+    
+    activity = "activity://n/a///pid://n/a///winid://n/a///"
+    subjects.append(Subject.new_for_values(
+        uri=activity,
+        interpretation=Interpretation.SOFTWARE,
+        manifestation=Manifestation.WORLD_ACTIVITY,
+        mimetype='application/octet-stream',
+        text='ucl-study-metadata'))
+    
+    event = Event.new_for_values(
+        timestamp=time.time()*1000,
+        manifestation=ManifestationWebEvents,
+        interpretation=InterpretationWebActiveTabs,
+        actor='application://chromium-browser.desktop',
+        subjects=subjects)
+    
+    zg.insert_event(event)
+
+def logDownload(item):
+    """ This method logs a download event. """
+        
+    subjects = []
+    text = "Download: %f bytes, started on %s" % (item['fileSize'], item['startTime'])
+    subjects.append(Subject.new_for_values(
+        uri=item['filename'],
+        origin=item['referrer'].replace('&', '%26'),
+        mimetype=item['mime'],
+        text=text))
+    
+    activity = "activity://null///pid://n/a///winid://n/a///"
+    subjects.append(Subject.new_for_values(
+        uri=activity,
+        interpretation=Interpretation.SOFTWARE,
+        manifestation=Manifestation.WORLD_ACTIVITY,
+        mimetype='application/octet-stream',
+        text='ucl-study-metadata'))
+    
+    event = Event.new_for_values(
+        timestamp=time.time()*1000,
+        manifestation=Manifestation.USER_ACTIVITY,
+        interpretation=InterpretationWebDownload,
+        actor='application://chromium-browser.desktop',
+        subjects=subjects)
+    
+    zg.insert_event(event)
+
+def messageDispatcher(text):
+    packet = json.loads(text)
+    try:
+        if packet['type'] == "Access":
+            logAccess(packet['documentInfo'])
+        elif packet['type'] == "Leave":
+            logLeave(packet['tabid'], packet['documentInfo'])
+        elif packet['type'] == "ActiveTabs":
+            logActiveTabs(packet['info'])
+        elif packet['type'] == "Download":
+            logDownload(packet['item'])
+        else:
+            syslog.syslog(syslog.LOG_ERR, 'Unknown message type received: %s' % packet['type'])
+    except NameError as e:
+        syslog.syslog(syslog.LOG_ERR, 'Name Error: %s (message was %s)' % (e, text.encode('utf-8')))
+
+def send_message(message):
+    """  Helper function that sends a message to the webapp. """
+    # Write message size.
+    sys.stdout.write(struct.pack('I', len(message)))
+    # Write the message itself.
+    sys.stdout.write(message)
+    sys.stdout.flush()
+  
+# 
+def read_thread_func():
+    """ Thread that reads messages from the webapp. """
+    message_number = 0
+    while 1:
+        # Read the message length (first 4 bytes).
+        text_length_bytes = sys.stdin.read(4)
+        if len(text_length_bytes) != 0:
+            # Unpack message length as 4 byte integer.
+            text_length = struct.unpack('i', text_length_bytes)[0]
+            # Read the text (JSON object) of the message.
+            text = sys.stdin.read(text_length).decode('utf-8')
+            messageDispatcher(text)
+        else:
+            Exit()
+
+def Exit():
+  syslog.closelog()
+  sys.exit(0)
+
+if __name__ == '__main__':
+    register()
+    read_thread_func()
