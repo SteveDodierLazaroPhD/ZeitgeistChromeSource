@@ -1,0 +1,13 @@
+Chrome Browser Dataprovider for Zeitgeist
+========================================
+
+
+Installation
+============
+
+Run install_host.sh as root, and manually install the unpacked extension in Chrome
+
+Removal
+============
+
+Run uninstall_host.sh as root, and manually remove the unpacked extension from Chrome

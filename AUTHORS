@@ -1,0 +1,15 @@
+background.html, content_script.js, manifest.json, zeitgeist.js:
+	2009-2015 (c) The Zeitgeist Project, see COPYING
+	2015 (c) Steve Dodier-Lazaro <sidnioulz@gmail.com>, see COPYING
+
+uk.ac.ucl.cs.study.multitasking.chrome*, install_host.sh, uninstall_host.sh:
+	2013 (c) The Chrome Developers, under BSD-like license
+	2015 (c) Steve Dodier-Lazaro <sidnioulz@gmail.com>, see COPYING
+
+intervalWorker.js:
+	2015 (c) Steve Dodier-Lazaro <sidnioulz@gmail.com>, see COPYING
+
+icon-*:
+	1826-2015 (c) University College London, all rights reserved
+
+	
