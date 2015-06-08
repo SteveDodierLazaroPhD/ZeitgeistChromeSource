@@ -30,8 +30,8 @@ HOST_PATH_IUM="$TARGET_DIR_IUM/$HOST_NAME"
 sed -i -e "s@HOST_PATH@$HOST_PATH@" "$TARGET_DIR/$HOST_NAME.json"
 sed -i -e "s@HOST_PATH@$HOST_PATH_IUM@" "$TARGET_DIR_IUM/$HOST_NAME.json"
 # Set permissions for the manifest so that all users can read it.
-chmod o+r "$TARGET_DIR/$HOST_NAME.json" "$TARGET_DIR_IUM/$HOST_NAME.json"
+chmod +r "$TARGET_DIR/$HOST_NAME.json" "$TARGET_DIR_IUM/$HOST_NAME.json"
 # Set permissions for the Python script so that all users can run it.
-chmod o+x "$HOST_PATH" "$HOST_PATH_IUM"
+chmod +x "$HOST_PATH" "$HOST_PATH_IUM"
 
 echo "Native messaging host $HOST_NAME has been installed."

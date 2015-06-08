@@ -3,9 +3,9 @@ Section: web
 Priority: optional
 Maintainer: Steve Dodier-Lazaro <sidnioulz@gmail.com>
 Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.5
+Standards-Version: 3.9.6
 Homepage: https://study.cs.ucl.ac.uk/multitasking/web
-Vcs-Bzr: bzr+ssh://bazaar.launchpad.net/~ucl-cs-study-devs/activityfinder/chromium-browser-extension/
+Vcs-Bzr: http://code.launchpad.net/~ucl-cs-study-devs/activityfinder/chromium-browser-extension
 Vcs-Browser: https://code.launchpad.net/~ucl-cs-study-devs/activityfinder/chromium-browser-extension
 
 Package: zeitgeist-chrome-datasource
@@ -14,5 +14,6 @@ Depends: ${misc:Depends},
 	 chromium-browser,
 	 libzeitgeist-2.0-0,
 	 python
-Description: Host component for the Chrome Zeitgeist Extension of a Multitasking Study at UCL
- Installs the host component of the UCL Zeitgeist Extension, which logs information about users' Web browsing habits
+Description: Host component for the UCL Multitasking Study Chrome Extension
+ Installs the host component of the UCL Zeitgeist Extension, which
+ logs information about users' Web browsing habits.
