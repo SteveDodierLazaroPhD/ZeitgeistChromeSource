@@ -10,6 +10,9 @@ Vcs-Browser: https://code.launchpad.net/~ucl-cs-study-devs/activityfinder/chromi
 
 Package: zeitgeist-chrome-datasource
 Architecture: all
-Depends: ${misc:Depends} chromium-browser python zeitgeist
-Description: <insert up to 60 chars description>
+Depends: ${misc:Depends},
+	 chromium-browser,
+	 libzeitgeist-2.0-0,
+	 python
+Description: Host component for the Chrome Zeitgeist Extension of a Multitasking Study at UCL
  Installs the host component of the UCL Zeitgeist Extension, which logs information about users' Web browsing habits
