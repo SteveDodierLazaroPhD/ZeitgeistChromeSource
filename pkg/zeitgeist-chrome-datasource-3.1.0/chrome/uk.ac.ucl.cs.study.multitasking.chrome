@@ -7,6 +7,7 @@
 # Copyright 2015 Steve Dodier-Lazaro <sidnioulz@gmail.com>
 # Modifications are under public domain
 
+import math
 import struct
 import sys
 import syslog
@@ -53,18 +54,18 @@ def logAccess(documentInfo):
     activity = "activity://null///pid://%d///winid://%d///index://%d///tabid://%d///" % (documentInfo['pid'], documentInfo['windowId'], documentInfo['index'], documentInfo['id'])
     subjects.append(Subject.new_for_values(
         uri=activity,
-        interpretation=Interpretation.SOFTWARE,
+        interpretation='activity://web-browser/Actor',
         manifestation=Manifestation.WORLD_ACTIVITY,
         mimetype='application/octet-stream',
         text='ucl-study-metadata'))
     
     event = Event.new_for_values(
-        timestamp=time.time()*1000,
+        timestamp=int(math.floor(time.time()*1000)),
         manifestation=Manifestation.USER_ACTIVITY,
         interpretation=InterpretationWebAccess,
         actor='application://chromium-browser.desktop',
         subjects=subjects)
-    
+
     zg.insert_event(event)
 
 def logLeave(tabid, documentInfo):
@@ -80,13 +81,13 @@ def logLeave(tabid, documentInfo):
     activity = "activity://null///pid://%d///winid://%d///index://%d///tabid://%d///" % (documentInfo['pid'], documentInfo['windowId'], documentInfo['index'], documentInfo['id'])
     subjects.append(Subject.new_for_values(
         uri=activity,
-        interpretation=Interpretation.SOFTWARE,
+        interpretation='activity://web-browser/Actor',
         manifestation=Manifestation.WORLD_ACTIVITY,
         mimetype='application/octet-stream',
         text='ucl-study-metadata'))
     
     event = Event.new_for_values(
-        timestamp=time.time()*1000,
+        timestamp=int(math.floor(time.time()*1000)),
         manifestation=Manifestation.USER_ACTIVITY,
         interpretation=InterpretationWebLeave,
         actor='application://chromium-browser.desktop',
@@ -108,13 +109,13 @@ def logActiveTabs(activeEventInfo):
     activity = "activity://n/a///pid://n/a///winid://n/a///"
     subjects.append(Subject.new_for_values(
         uri=activity,
-        interpretation=Interpretation.SOFTWARE,
+        interpretation='activity://web-browser/Actor',
         manifestation=Manifestation.WORLD_ACTIVITY,
         mimetype='application/octet-stream',
         text='ucl-study-metadata'))
     
     event = Event.new_for_values(
-        timestamp=time.time()*1000,
+        timestamp=int(math.floor(time.time()*1000)),
         manifestation=ManifestationWebEvents,
         interpretation=InterpretationWebActiveTabs,
         actor='application://chromium-browser.desktop',
@@ -136,13 +137,13 @@ def logDownload(item):
     activity = "activity://null///pid://n/a///winid://n/a///"
     subjects.append(Subject.new_for_values(
         uri=activity,
-        interpretation=Interpretation.SOFTWARE,
+        interpretation='activity://web-browser/Actor',
         manifestation=Manifestation.WORLD_ACTIVITY,
         mimetype='application/octet-stream',
         text='ucl-study-metadata'))
     
     event = Event.new_for_values(
-        timestamp=time.time()*1000,
+        timestamp=int(math.floor(time.time()*1000)),
         manifestation=Manifestation.USER_ACTIVITY,
         interpretation=InterpretationWebDownload,
         actor='application://chromium-browser.desktop',

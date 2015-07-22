@@ -4,6 +4,7 @@
   "path": "/etc/opt/chrome/native-messaging-hosts/uk.ac.ucl.cs.study.multitasking.chrome",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://lbiefpjhogkfihinalgikefnaohehboh/"
+    "chrome-extension://lbiefpjhogkfihinalgikefnaohehboh/",
+    "chrome-extension://hhccdfafffjclmgjdokgijhccpcjcehd/"
   ]
 }

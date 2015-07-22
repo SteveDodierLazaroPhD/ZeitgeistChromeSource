@@ -1,3 +1,10 @@
+zeitgeist-chrome-datasource (3.1.0) vivid; urgency=medium
+
+  * Fixed incorrect timestamp calculations
+  * Updated extension ID
+
+ -- Steve Dodier-Lazaro <sidnioulz@gmail.com>  Wed, 22 Jul 2015 23:07:48 +0100
+
 zeitgeist-chrome-datasource (3.0.1) vivid; urgency=medium
 
   * Fixed issues with the package dependencies
